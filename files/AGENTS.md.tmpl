@@ -1,0 +1,150 @@
+# {{ project.name }} — agent guide
+
+{% if options.spec_md %}Read `SPEC.md` first. Turn the owner's brief into acceptance criteria before implementing a feature.{% endif %}
+Bootstrapped from {{ skeleton.id }} {{ skeleton.version }} on {{ project.created_at }}.
+
+## Stack and choices
+
+- Flutter 3.47.6 stable / Dart 3.13.5; one codebase for Android, iOS and web.
+- Design: **{% if choices.ui == 'glass' %}Liquid Glass{% else %}Material 3{% endif %}**; styling: **{% if choices.styling == 'tailwind' %}Mix / Tailwind utilities{% else %}Flutter widgets{% endif %}**.
+- Accessible Material controls with light/dark themes in `lib/app/theme.dart`; shared visuals in `lib/ui/`.
+- Riverpod 3.4: dependency injection, `AsyncNotifier` controllers and explicit async state.
+- go_router 18: route declarations and navigation in `lib/app/router.dart`.
+- SharedPreferencesAsync: appearance and disposable demonstration notes only.
+- `flutter_test`, `flutter_lints`, strict casts/inference/raw types; dotenv is a tooling-only dependency.
+- Providers and immutable models are ordinary Dart. No code-generation step is required.
+
+Keep these choices until a product requirement justifies changing them. Add an API client, database,
+code generation or another package only when needed, with a documented reason and tests.
+Use the stable Flutter channel and the checked-in `pubspec.lock`; do not run `flutter upgrade` as routine setup.
+
+## Project map
+
+```text
+lib/main.dart                         ProviderScope and startup
+lib/app/app.dart                      MaterialApp composition
+lib/app/router.dart                   go_router routes and not-found page
+lib/app/theme.dart                    Typography and control themes for both appearances
+lib/ui/                              Design flag, semantic tokens, surfaces and responsive shell
+lib/core/config/app_config.dart       Typed, public compile-time configuration
+lib/core/storage/preferences.dart     Platform adapter provider
+lib/features/notes/domain/            Immutable Note and NotesRepository contract
+lib/features/notes/data/              Namespaced preference-backed repository
+lib/features/notes/application/       NotesController: validation, mutation and state
+lib/features/notes/presentation/      NotesScreen: rendering and user input
+lib/features/settings/               Appearance state and settings screen
+android/, ios/, web/                  Platform hosts and assets
+tool/config.dart                     .env → safe native metadata and public JSON defines
+tool/project.dart                    All run/build/check entry points and release web server
+test/support/fakes.dart               Controllable repository fake
+test/*_test.dart                      Unit and widget tests
+```
+
+## Architecture
+
+For notes: **screen → controller → repository contract → storage adapter**. Dependencies are supplied
+by providers. Use `ref.watch` for reactive dependencies, `ref.read` for actions, and `ref.onDispose` for
+owned resources. Dispose text controllers, router instances, streams and clients.
+
+Models are immutable; never mutate a list obtained from a provider. Domain validation lives in models
+or application services. A controller publishes a new state only after a successful write, prevents
+concurrent writes, and checks `ref.mounted` after awaits. Keep simple ephemeral input and busy state
+in the screen. SettingsController is the small adapter for appearance preferences.
+
+Screens render loading, empty, data and error states, forward actions, and show understandable errors.
+They do not access storage or HTTP directly. Reusable presentational widgets accept props/callbacks.
+Never erase corrupt data automatically: surface the failure and offer retry/recovery explicitly.
+Do not expose raw exception details in UI messages. Initial loading retries are explicit rather than
+Riverpod's automatic retry, so broken stored data does not cause a retry loop.
+
+## UI editing contract
+
+- Start with `lib/ui/tokens.dart` and `lib/app/theme.dart`; features use semantic colors, not new palettes.
+- `WorkspaceShell` and `AppSurface` accept presentation props only. Providers and routes belong to screens.
+{% if choices.ui == 'glass' -%}
+- The design is Liquid Glass (`useGlass = true` in `lib/ui/design.dart`). It uses Flutter backdrop blur,
+  not platform-specific SwiftUI or a shader. Keep filters clipped and out of scrolling collection items.
+- Preserve opaque fallbacks for high contrast/accessibility, 48-pixel controls, readable text, focus,
+  keyboard scrolling, selectable notes, sidebar/compact navigation and system/light/dark appearance.
+{% else -%}
+- The design is Material 3 with opaque surfaces (`useGlass = false` in `lib/ui/design.dart`).
+- Preserve 48-pixel controls, readable text, focus, keyboard scrolling, selectable notes,
+  sidebar/compact navigation and system/light/dark appearance.
+{% endif -%}
+- Layout uses Flutter constraints and supports 320-pixel phones, keyboards, wide windows and large text.
+{% if choices.styling == 'tailwind' %}
+- Styling is Mix 2.2.1 / mix_winds 0.1.0-alpha.1 (experimental). `styled_panel.dart` uses
+  `p-6 rounded-3xl border border-line bg-panel` with explicit `panel`/`line` aliases in `TwConfig`.
+- Utilities render native widgets, not CSS. Do not add Tailwind's CLI, npm, web-only classes or a WebView.
+  Unsupported utilities throw via `onDiagnostic`; never disable that check to hide a token error.
+- Read [mix_winds](https://pub.dev/packages/mix_winds) and its Flutter constraint adaptations before
+  expanding utilities. Prefer native layout/input widgets around styled panels. There is no generation
+  step. Preserve exact package pins, theme-driven aliases and tests when changing the styling adapter.
+{% else %}
+- Styling is standard Flutter. `styled_panel.dart` defines spacing, fill, border and radius with typed
+  widgets. Extend the small presentation kit when reused; do not invent a CSS parser or widget DSL.
+{% endif %}
+
+## Commands and configuration
+
+| Command | Purpose |
+|---|---|
+| `make setup` | `flutter pub get --enforce-lockfile`, then configure |
+| `make dev` | Preview at http://127.0.0.1:{{ ports.WEB_PORT }} |
+| `make check` | Formatting + strict analysis + all unit/widget tests |
+| `make test` | Tests with app defines |
+| `make format` | Dart formatting |
+| `make build` / `make start` | Release web build / local server |
+| `make devices` | Device IDs |
+| `dart run tool/project.dart run -d <id>` | Device/Chrome development and terminal hot reload |
+| `make android` / `make ios` | Local APK / unsigned iOS release |
+| `dart run tool/project.dart test --coverage` | Test coverage |
+
+Use these entry points, not raw `flutter run/test/build`: they inject `.env` configuration. Flutter's
+Dart SDK must be on the login PATH. fastDev commands have closed stdin; stop/restart Dev after edits.
+Native commands need their platform SDKs (`flutter doctor -v`). A browser check does not prove a native
+permission, plugin, signing or lifecycle change works; run the relevant native build/device check and
+report exactly what was exercised.
+
+`.env` is private local configuration; `.env.example` is tracked. `APP_NAME` is the display name;
+`APP_IDENTIFIER` is the Android/iOS ID; `APP_SLUG` is a stable storage namespace; `WEB_PORT` is allocated
+by fastDev. Keep the Dart package `app` stable. Do not manually edit the generated public JSON,
+Android app name/ID properties or iOS AppConfig.xcconfig. Native Info.plist, bundle identifiers and web
+metadata are refreshed by the configuration tool. Keep other native settings intact.
+
+To add a configuration key: document it in `.env.example` and README, validate it in `tool/config.dart`,
+add it to `publicDefines` **only if it is public**, and add a typed field in AppConfig and tests.
+Client applications cannot keep secrets in compiled defines or assets. No keys from `.env` are forwarded
+implicitly, and shell-like expressions in names remain literal.
+
+## Add a feature or screen
+
+1. Name `lib/features/<feature>/`; define its immutable data and repository interface.
+2. Implement storage/network I/O under `data/`; register its dependency provider. Prefer fakeable interfaces.
+3. Add an `AsyncNotifier` under `application/`, with validation, explicit failures, and safe writes.
+4. Build the screen under `presentation/`; wire its route in `lib/app/router.dart` and pass callbacks to reusable UI.
+5. Write unit tests of business rules and failures, repository tests, and widget tests of user acceptance criteria.
+6. Check narrow screens, keyboard, scrolling, accessibility semantics, light/dark modes and navigation/back behavior.
+7. Update the product specification and docs, then run the quality gate and release build.
+
+For an API: add a client adapter in `core/network/` only when a real endpoint exists; inject it into a
+feature repository. Model timeouts, malformed responses, authorization, retries and cancellation;
+never issue HTTP from a widget. Keep server code in a separate service when needed.
+For important persistent data: select a transactional database, introduce versioned migrations in that
+adapter, test upgrades from the previous schema and handle recovery before replacing demo preferences.
+Add a separate use-case layer only when logic is reused or too complex for a controller.
+
+## Tests and definition of done
+
+Place tests in `test/*_test.dart`; share fakes under `test/support/`. Use `ProviderContainer.test`
+with provider overrides for controllers. Use the official in-memory SharedPreferencesAsync platform
+adapter for storage tests; no device or credentials are needed. For widgets, pump a ProviderScope and
+exercise complete user interactions. Simulate load/write failures and delayed writes, not only success.
+Do not suppress analyzer warnings or reformat unrelated native files to make a check pass.
+
+Before finishing: `make check` passes with zero analyzer warnings/infos; `make build` succeeds;
+acceptance criteria, docs and tests match the result. Also exercise the relevant native target for native
+changes. Dependency changes include a regenerated lockfile (`flutter pub get`, then `make setup` and
+checks), and an explanation. Keep `.env`, generated files, dependencies and build outputs out of Git.
+Everything—code, comments, UI strings, documentation and commit messages—is English. Use Dart's
+formatter, snake_case filenames, PascalCase types, typed values and descriptive component names.

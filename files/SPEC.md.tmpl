@@ -1,0 +1,47 @@
+# {{ project.name }} — Specification
+
+Status: initial product brief · Created {{ project.created_at }}
+
+## Initial brief
+
+{% if project.brief | trim %}{{ project.brief }}{% else %}No brief was provided. Define the product with the owner before extending the example.{% endif %}
+
+## Goals
+<!-- Define the user outcome and measurable success criteria. -->
+
+## Users
+<!-- Who uses the app, on which devices, and in which situations? -->
+
+## Scope
+<!-- List what this release includes and explicitly excludes. -->
+
+## Features
+<!-- Write user stories and testable acceptance criteria, including failures. -->
+The initial demonstration adds, lists and deletes local notes and chooses system/light/dark appearance.
+Replace or extend it according to the product requirements.
+
+## Data model
+<!-- Define entities, validation, ownership, durability, migrations and retention. -->
+Demonstration notes have an ID, text (1–500 characters after trimming) and a UTC creation timestamp.
+Preferences are namespaced by APP_SLUG; demo notes are disposable and need a stronger store for important data.
+
+## API / Interfaces
+<!-- Document endpoints, authentication, errors, offline behavior and external integrations. -->
+There is no backend configured. App navigation currently has / and /settings.
+
+## UI
+<!-- Describe screens, navigation, design, accessibility and narrow/large screen behavior. -->
+Design: {% if choices.ui == 'glass' %}Liquid Glass{% else %}Material 3{% endif %}. Styling: {% if choices.styling == 'tailwind' %}Mix / Tailwind utilities{% else %}Flutter widgets{% endif %}. Light, dark and system appearance are supported.
+The responsive shell uses a sidebar on large windows and compact navigation on phones.
+{%- if choices.ui == 'glass' %} Glass falls back
+to opaque surfaces for high contrast and accessible navigation.{% endif %} Public naming comes from APP_NAME.
+
+## Non-functional requirements
+<!-- Set targets for performance, privacy, reliability, accessibility and supported OS versions. -->
+Android and iOS are native targets; web provides a browser preview. Unit and widget tests run headlessly.
+
+## Open questions
+<!-- Record decisions that require the owner: backend, persistence, distribution and permissions. -->
+
+## Milestones
+<!-- Break the work into independently verifiable outcomes. -->

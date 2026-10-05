@@ -1,0 +1,23 @@
+import 'package:flutter/material.dart';
+
+import 'tokens.dart';
+
+/// Flutter implementation; fastDev can select a utility implementation.
+class StyledPanel extends StatelessWidget {
+  const StyledPanel({required this.child, super.key});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = UiColors(context);
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: colors.panel,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: colors.line),
+      ),
+      child: child,
+    );
+  }
+}

@@ -1,0 +1,33 @@
+import 'package:flutter/material.dart';
+import 'package:mix_winds/mix_winds.dart';
+
+import 'tokens.dart';
+
+/// A real native Tailwind utility implementation of the shared panel contract.
+class StyledPanel extends StatelessWidget {
+  const StyledPanel({required this.child, super.key});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = UiColors(context);
+    final defaults = TwConfig.standard();
+    return TwScope(
+      config: defaults.copyWith(
+        textDefaults: const TwTextDefaults.platformDefault(),
+        colors: {
+          ...defaults.colors,
+          'panel': colors.panel,
+          'line': colors.line,
+        },
+      ),
+      child: Div(
+        classNames: 'p-6 rounded-3xl border border-line bg-panel',
+        onDiagnostic: (diagnostic) => throw StateError(
+          'Unsupported panel utility: ${diagnostic.token}: ${diagnostic.reason}',
+        ),
+        child: child,
+      ),
+    );
+  }
+}

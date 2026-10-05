@@ -1,0 +1,2 @@
+/// Selected at project creation. Visual decisions stay outside feature logic.
+const useGlass = true;

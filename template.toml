@@ -1,0 +1,160 @@
+schema = 1
+id = "flutter-app"
+name = "Flutter App"
+description = "A Flutter app for Android and iOS with a browser preview, a responsive Liquid Glass design or Material 3, and a choice of Flutter widgets or Tailwind-style native utilities. Riverpod, go_router, local notes, appearance settings and a strict quality gate give AI agents a small, explicit starting architecture."
+category = "mobile"
+languages = ["dart"]
+tags = ["flutter", "mobile", "android", "ios", "web", "riverpod", "material", "liquid-glass", "utility-first", "agent-ready"]
+stack = ["Flutter 3.47.6 stable", "Dart 3.13.5", "Riverpod 3.4", "go_router 18", "Liquid Glass or Material 3", "Flutter widgets or Mix / Tailwind utilities", "shared_preferences 2.5 (demo storage)", "flutter_test + flutter_lints 6"]
+
+[requirements]
+flutter = ">=3.47.6, <4"
+dart = ">=3.13.5, <4"
+
+[env]
+APP_NAME = "{{ project.name }}"
+APP_SLUG = "{{ project.slug }}"
+APP_IDENTIFIER = "com.example.fd{{ project.slug | replace('-', '.fd') }}"
+
+[ports]
+WEB_PORT = 8410
+
+[[setup]]
+label = "Install locked Flutter dependencies"
+run = "flutter pub get --enforce-lockfile"
+
+[[setup]]
+label = "Configure application names and identifiers"
+run = "dart run tool/project.dart configure"
+
+[commands.dev]
+label = "Dev"
+description = "Run the browser preview. Restart this command after edits when using fastDev without a terminal."
+run = "dart run tool/project.dart dev"
+long = true
+primary = true
+url = "http://127.0.0.1:${WEB_PORT}"
+
+[commands.build]
+label = "Build"
+description = "Build the release web app into build/web."
+run = "dart run tool/project.dart build"
+
+[commands.start]
+label = "Start"
+description = "Serve the existing release web build on the allocated port."
+run = "dart run tool/project.dart start"
+long = true
+url = "http://127.0.0.1:${WEB_PORT}"
+
+[commands.test]
+label = "Test"
+run = "dart run tool/project.dart test"
+
+[commands.check]
+label = "Check"
+description = "Check formatting, strict analysis and all unit/widget tests."
+run = "dart run tool/project.dart check"
+
+[commands.format]
+label = "Format"
+run = "dart run tool/project.dart format"
+
+[commands.devices]
+label = "List devices"
+run = "flutter devices"
+
+[commands.run-device]
+label = "Run on device"
+description = "Run on an emulator, simulator or connected device. Its platform SDK must be installed."
+run = 'dart run tool/project.dart run -d "$DEVICE_ID"'
+long = true
+inputs = [{ name = "DEVICE_ID", label = "Device ID", placeholder = "ID from List devices" }]
+
+[commands.build-android]
+label = "Android APK"
+description = "Build a local release APK. Requires the Android SDK and JDK; configure release signing before store distribution."
+run = "dart run tool/project.dart build-android"
+
+[commands.build-ios]
+label = "iOS build (unsigned)"
+description = "Build an unsigned iOS release. Requires full Xcode and its iOS platform tools."
+run = "dart run tool/project.dart build-ios"
+
+[choices.ui]
+label = "Design"
+description = "The visual design. Both options share the same app, routing and state."
+default = "glass"
+
+[choices.ui.options.glass]
+label = "Liquid Glass"
+description = "Translucent panels, clipped blur, soft wallpaper and adaptive navigation inspired by macOS."
+
+[choices.ui.options.material]
+label = "Material 3"
+description = "Opaque Material surfaces using the same responsive layout and accessible controls."
+
+[choices.styling]
+label = "Styles"
+description = "How shared panels are styled. Flutter renders native widgets rather than HTML or CSS."
+default = "flutter"
+
+[choices.styling.options.flutter]
+label = "Flutter widgets"
+description = "Standard Flutter decoration and theme tokens, with no extra styling dependency. Recommended."
+
+[choices.styling.options.tailwind]
+label = "Mix / Tailwind utilities (experimental)"
+description = "Native Tailwind-like class strings via Mix 2.2 and mix_winds alpha. A subset of Tailwind, not browser CSS; its API is experimental."
+
+[verify]
+commands = ["check", "build"]
+variants = [
+  { ui = "glass", styling = "tailwind" },
+  { ui = "material", styling = "flutter" },
+  { ui = "material", styling = "tailwind" },
+]
+
+[preview]
+command = "dev"
+url = "http://127.0.0.1:${WEB_PORT}"
+message = "Open the link, add and delete a note, refresh to check persistence, then change Appearance in Settings. This browser preview shares the mobile app's Dart code. Stop the preview when finished."
+
+[translations.ru]
+"Flutter App" = "Flutter-приложение"
+"A Flutter app for Android and iOS with a browser preview, a responsive Liquid Glass design or Material 3, and a choice of Flutter widgets or Tailwind-style native utilities. Riverpod, go_router, local notes, appearance settings and a strict quality gate give AI agents a small, explicit starting architecture." = "Flutter-приложение для Android и iOS с предпросмотром в браузере, адаптивным дизайном Liquid Glass или Material 3 и выбором стандартных Flutter-виджетов либо нативных утилит в стиле Tailwind. Riverpod, go_router, локальные заметки, настройки темы и строгие проверки дают ИИ-агентам небольшую понятную стартовую архитектуру."
+"Install locked Flutter dependencies" = "Установка Flutter-зависимостей из lock-файла"
+"Configure application names and identifiers" = "Настройка названия и идентификаторов приложения"
+"Dev" = "Dev"
+"Run the browser preview. Restart this command after edits when using fastDev without a terminal." = "Запуск предпросмотра в браузере. При работе через fastDev без терминала перезапускайте команду после изменений."
+"Build" = "Сборка"
+"Build the release web app into build/web." = "Сборка веб-приложения для выпуска в build/web."
+"Start" = "Запуск"
+"Serve the existing release web build on the allocated port." = "Запуск готовой веб-сборки на выделенном порту."
+"Test" = "Тесты"
+"Check" = "Проверка"
+"Check formatting, strict analysis and all unit/widget tests." = "Проверка форматирования, строгого анализа, модульных тестов и тестов виджетов."
+"Format" = "Форматирование"
+"List devices" = "Список устройств"
+"Run on device" = "Запуск на устройстве"
+"Run on an emulator, simulator or connected device. Its platform SDK must be installed." = "Запуск на эмуляторе, симуляторе или подключённом устройстве. Необходим SDK соответствующей платформы."
+"Device ID" = "ID устройства"
+"ID from List devices" = "ID из списка устройств"
+"Android APK" = "Android APK"
+"Build a local release APK. Requires the Android SDK and JDK; configure release signing before store distribution." = "Сборка локального APK в режиме release. Нужны Android SDK и JDK; перед публикацией в магазине настройте подпись релиза."
+"iOS build (unsigned)" = "Сборка iOS без подписи"
+"Build an unsigned iOS release. Requires full Xcode and its iOS platform tools." = "Сборка iOS-релиза без подписи. Нужны полный Xcode и инструменты платформы iOS."
+"Open the link, add and delete a note, refresh to check persistence, then change Appearance in Settings. This browser preview shares the mobile app's Dart code. Stop the preview when finished." = "Откройте ссылку, добавьте и удалите заметку, обновите страницу для проверки сохранения, затем измените тему в Settings. Браузерный предпросмотр использует тот же Dart-код, что и мобильное приложение. Завершив проверку, остановите предпросмотр."
+
+"Design" = "Дизайн"
+"The visual design. Both options share the same app, routing and state." = "Визуальное оформление. Оба варианта используют общее приложение, маршруты и состояние."
+"Liquid Glass" = "Liquid Glass"
+"Translucent panels, clipped blur, soft wallpaper and adaptive navigation inspired by macOS." = "Полупрозрачные панели, ограниченное размытие, мягкий фон и адаптивная навигация в духе macOS."
+"Material 3" = "Material 3"
+"Opaque Material surfaces using the same responsive layout and accessible controls." = "Непрозрачные поверхности Material с той же адаптивной компоновкой и доступными элементами управления."
+"Styles" = "Стили"
+"How shared panels are styled. Flutter renders native widgets rather than HTML or CSS." = "Способ оформления общих панелей. Flutter отрисовывает нативные виджеты вместо HTML и CSS."
+"Flutter widgets" = "Flutter-виджеты"
+"Standard Flutter decoration and theme tokens, with no extra styling dependency. Recommended." = "Стандартное оформление Flutter и токены темы без дополнительной зависимости. Рекомендуется."
+"Mix / Tailwind utilities (experimental)" = "Mix / Tailwind-утилиты (экспериментальные)"
+"Native Tailwind-like class strings via Mix 2.2 and mix_winds alpha. A subset of Tailwind, not browser CSS; its API is experimental." = "Нативные строковые классы в стиле Tailwind через Mix 2.2 и mix_winds alpha. Подмножество Tailwind без браузерного CSS; API экспериментальный."

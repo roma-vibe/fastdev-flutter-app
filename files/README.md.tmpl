@@ -1,0 +1,119 @@
+# {{ project.name }}
+
+A Flutter application for Android, iOS and web, with Riverpod, go_router and an adaptive design.
+Bootstrapped from {{ skeleton.id }} {{ skeleton.version }} on {{ project.created_at }}.
+
+## Run
+
+Flutter **3.47.6** includes Dart **3.13.5**. Install the [official stable SDK](https://docs.flutter.dev/install),
+add its `bin` directory to your login PATH, and run `flutter doctor -v`.
+`.fvmrc` records the tested version for environments that already use FVM; FVM is optional.
+
+```sh
+# Only needed if setup was skipped or after checking out the project on another machine:
+test -f .env || cp .env.example .env
+make setup
+make dev
+```
+
+Open http://127.0.0.1:{{ ports.WEB_PORT }}. Add a note, refresh, delete it, and try Settings → Appearance.
+The web preview runs the same Dart application as the mobile targets. From fastDev, stop and restart
+Dev after edits: its commands run without a terminal. For terminal hot reload use:
+
+```sh
+make devices
+dart run tool/project.dart run -d chrome
+# Or substitute an Android emulator / iOS simulator ID. Press r to hot reload.
+```
+
+`chrome` requires Google Chrome. Android requires Android Studio/SDK, a compatible JDK and accepted
+SDK licenses. iOS requires full Xcode, its iOS SDK and a simulator/device; Apple Command Line Tools alone
+are insufficient. Follow the [Android](https://docs.flutter.dev/platform-integration/android/setup)
+and [iOS](https://docs.flutter.dev/platform-integration/ios/setup) setup guides.
+
+## Commands
+
+| Command | Result |
+|---|---|
+| `make setup` | Install exact locked packages and generate native/public configuration |
+| `make dev` | Browser preview on the allocated port |
+| `make check` | Formatting, strict analysis with zero warnings, unit and widget tests |
+| `make test` | Unit/widget tests with configuration from `.env` |
+| `make format` | Format Dart sources |
+| `make build` | Release web output in `build/web/` |
+| `make start` | Serve the existing release web output locally |
+| `make devices` | List device IDs |
+| `dart run tool/project.dart run -d <id>` | Native or Chrome development with hot reload |
+| `make android` | Local release APK in `build/app/outputs/flutter-apk/` |
+| `make ios` | Unsigned iOS release in `build/ios/iphoneos/` |
+| `dart run tool/project.dart test --coverage` | Tests and `coverage/lcov.info` |
+
+The generated Android release configuration uses the development signing key for local testing.
+Configure your signing identity, application ID, icons, permissions and version before store distribution.
+The iOS command produces an unsigned build; signing/archive/upload are separate steps.
+
+## Design and styling
+
+This project was created with **{% if choices.ui == 'glass' %}Liquid Glass{% else %}Material 3{% endif %}**
+and **{% if choices.styling == 'tailwind' %}Mix / Tailwind utilities{% else %}Flutter widgets{% endif %}**.
+
+The shared UI lives in `lib/ui/`: semantic colors in `tokens.dart`, panels in `surface.dart` and
+`styled_panel.dart`, responsive navigation in `workspace_shell.dart`, background in `wallpaper.dart`.
+`lib/app/theme.dart` defines typography, controls and both appearances. The desktop sidebar appears at
+960 logical pixels and 560 pixels of available height; smaller windows use compact navigation.
+Panels and notes scroll with the keyboard open.
+{%- if choices.ui == 'glass' %} High contrast and accessible navigation disable blur and use opaque panels.
+Collection items never create individual blur filters. The background is painted locally.{% endif %}
+The app bundles no remote images. On the web, Flutter loads its CanvasKit renderer and default Roboto font
+from Google's CDNs by default; `dart run tool/project.dart build --no-web-resources-cdn` serves both from `build/web`.
+
+{% if choices.ui == 'glass' %}
+Liquid Glass is a Flutter interpretation of macOS frosted surfaces: clipped backdrop blur, translucent
+fills, bright edges and soft shadows. It works across the three targets; it is not a native SwiftUI
+Liquid Glass material or a refraction shader. The selected design is recorded in `lib/ui/design.dart`.
+{% else %}
+Material 3 uses opaque themed surfaces, the responsive layout above and accessible Material controls.
+The selected design is recorded in `lib/ui/design.dart`.
+{% endif %}
+
+{% if choices.styling == 'tailwind' %}
+The styling adapter uses **Mix 2.2.1 + mix_winds 0.1.0-alpha.1**. Shared panels actually use
+`p-6 rounded-3xl border border-line bg-panel`; product color aliases are provided through `TwConfig`.
+This is a native Flutter implementation of a **subset** of Tailwind utilities, not Tailwind CSS, HTML,
+or a WebView. The upstream package is experimental; keep the exact pins and test changes before
+expanding its use. Unsupported classes fail explicitly through `onDiagnostic` rather than silently
+changing the UI. Add aliases in the adapter and use `Theme.of(context)` for accessible controls.
+Keep Flutter `Row`, `Column`, `Expanded`, `LayoutBuilder` and native form widgets for layout and input;
+CSS flex and Flutter constraints differ. Read the upstream [adaptations](https://github.com/btwld/mix/blob/main/packages/mix_winds/FLUTTER_ADAPTATIONS.md)
+and [API](https://pub.dev/packages/mix_winds) before adding utilities. No Node, CSS compiler or generator
+is needed. Keep form semantics, hit targets, keyboard behavior and both themes in widget tests.
+{% else %}
+Shared panels use standard `Container`, `BoxDecoration`, `EdgeInsets` and Flutter theme tokens.
+There is no styling dependency. Add visual primitives here instead of duplicating decorations across
+feature screens.
+{% endif %}
+
+## Configuration and data
+
+`.env` is the source of truth for the display name, application ID and preview port. `tool/config.dart`
+reads it with dotenv without expanding variables, escapes platform formats, and forwards **only**
+`APP_NAME` and `APP_SLUG` as compile-time JSON defines. `.env` is never bundled as an asset.
+After changing configuration, restart Dev or rebuild. `APP_IDENTIFIER` is applied to Android and iOS;
+`APP_SLUG` namespaces local storage. The internal Dart package is deliberately named `app`, so imports
+stay stable when the product is renamed. Configuration updates modify the native metadata and web title.
+
+`shared_preferences` stores appearance and the small **disposable demo notes**. It is not a transactional
+or durable database. For important user data, implement the `NotesRepository` contract with a real store
+(e.g. Drift/SQLite) or an API and add migrations, recovery and synchronization tests.
+Web preferences belong to the browser origin; changing the preview port selects another origin.
+There is no backend or authentication service configured yet.
+
+## Code
+
+`lib/app/` composes routing/theme; `lib/core/` holds configuration and shared adapters;
+`lib/features/<feature>/` contains models, repositories, controllers and screens.
+`test/` exercises validation, persistence, failures, concurrency, navigation and a phone with its keyboard open.
+Native hosts are in `android/` and `ios/`; `web/` contains browser bootstrap files.
+
+{% if options.agents_md %}Read `AGENTS.md` before changing the app.{% endif %}
+{% if options.spec_md %}Complete `SPEC.md` with product goals and acceptance criteria.{% endif %}
