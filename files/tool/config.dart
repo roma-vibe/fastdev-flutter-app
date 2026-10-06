@@ -94,10 +94,6 @@ void configureProject(ProjectConfig config, {String root = '.'}) {
     'android/app/app-config.properties',
     'applicationId=${config.identifier}\n',
   );
-  write(
-    'ios/Flutter/AppConfig.xcconfig',
-    'APP_BUNDLE_ID = ${config.identifier}\n',
-  );
   final project = File('$root/ios/Runner.xcodeproj/project.pbxproj');
   if (project.existsSync()) {
     project.writeAsStringSync(

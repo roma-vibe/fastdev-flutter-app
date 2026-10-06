@@ -72,7 +72,7 @@ Riverpod's automatic retry, so broken stored data does not cause a retry loop.
   sidebar/compact navigation and system/light/dark appearance.
 {% endif -%}
 - Layout uses Flutter constraints and supports 320-pixel phones, keyboards, wide windows and large text.
-{% if choices.styling == 'tailwind' %}
+{% if choices.styling == 'tailwind' -%}
 - Styling is Mix 2.2.1 / mix_winds 0.1.0-alpha.1 (experimental). `styled_panel.dart` uses
   `p-6 rounded-3xl border border-line bg-panel` with explicit `panel`/`line` aliases in `TwConfig`.
 - Utilities render native widgets, not CSS. Do not add Tailwind's CLI, npm, web-only classes or a WebView.
@@ -80,11 +80,10 @@ Riverpod's automatic retry, so broken stored data does not cause a retry loop.
 - Read [mix_winds](https://pub.dev/packages/mix_winds) and its Flutter constraint adaptations before
   expanding utilities. Prefer native layout/input widgets around styled panels. There is no generation
   step. Preserve exact package pins, theme-driven aliases and tests when changing the styling adapter.
-{% else %}
+{% else -%}
 - Styling is standard Flutter. `styled_panel.dart` defines spacing, fill, border and radius with typed
   widgets. Extend the small presentation kit when reused; do not invent a CSS parser or widget DSL.
 {% endif %}
-
 ## Commands and configuration
 
 | Command | Purpose |
@@ -102,15 +101,16 @@ Riverpod's automatic retry, so broken stored data does not cause a retry loop.
 
 Use these entry points, not raw `flutter run/test/build`: they inject `.env` configuration. Flutter's
 Dart SDK must be on the login PATH. fastDev commands have closed stdin; stop/restart Dev after edits.
+Dev answers HTTP before compilation ends: open the page after it prints `is being served at`.
 Native commands need their platform SDKs (`flutter doctor -v`). A browser check does not prove a native
 permission, plugin, signing or lifecycle change works; run the relevant native build/device check and
 report exactly what was exercised.
 
 `.env` is private local configuration; `.env.example` is tracked. `APP_NAME` is the display name;
 `APP_IDENTIFIER` is the Android/iOS ID; `APP_SLUG` is a stable storage namespace; `WEB_PORT` is allocated
-by fastDev. Keep the Dart package `app` stable. Do not manually edit the generated public JSON,
-Android app name/ID properties or iOS AppConfig.xcconfig. Native Info.plist, bundle identifiers and web
-metadata are refreshed by the configuration tool. Keep other native settings intact.
+by fastDev. Keep the Dart package `app` stable. Do not manually edit the generated public JSON or
+Android app name/ID files. Native Info.plist, bundle identifiers and web metadata are refreshed by
+the configuration tool. Keep other native settings intact.
 
 To add a configuration key: document it in `.env.example` and README, validate it in `tool/config.dart`,
 add it to `publicDefines` **only if it is public**, and add a typed field in AppConfig and tests.

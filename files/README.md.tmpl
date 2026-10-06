@@ -16,7 +16,9 @@ make setup
 make dev
 ```
 
-Open http://127.0.0.1:{{ ports.WEB_PORT }}. Add a note, refresh, delete it, and try Settings → Appearance.
+Open http://127.0.0.1:{{ ports.WEB_PORT }} once Dev prints `lib/main.dart is being served at …`; the first
+compile can take a few minutes, and a page opened earlier stays blank until you reload it.
+Add a note, refresh, delete it, and try Settings → Appearance.
 The web preview runs the same Dart application as the mobile targets. From fastDev, stop and restart
 Dev after edits: its commands run without a terminal. For terminal hot reload use:
 
@@ -67,16 +69,15 @@ Collection items never create individual blur filters. The background is painted
 The app bundles no remote images. On the web, Flutter loads its CanvasKit renderer and default Roboto font
 from Google's CDNs by default; `dart run tool/project.dart build --no-web-resources-cdn` serves both from `build/web`.
 
-{% if choices.ui == 'glass' %}
+{% if choices.ui == 'glass' -%}
 Liquid Glass is a Flutter interpretation of macOS frosted surfaces: clipped backdrop blur, translucent
 fills, bright edges and soft shadows. It works across the three targets; it is not a native SwiftUI
 Liquid Glass material or a refraction shader. The selected design is recorded in `lib/ui/design.dart`.
-{% else %}
+{% else -%}
 Material 3 uses opaque themed surfaces, the responsive layout above and accessible Material controls.
 The selected design is recorded in `lib/ui/design.dart`.
 {% endif %}
-
-{% if choices.styling == 'tailwind' %}
+{% if choices.styling == 'tailwind' -%}
 The styling adapter uses **Mix 2.2.1 + mix_winds 0.1.0-alpha.1**. Shared panels actually use
 `p-6 rounded-3xl border border-line bg-panel`; product color aliases are provided through `TwConfig`.
 This is a native Flutter implementation of a **subset** of Tailwind utilities, not Tailwind CSS, HTML,
@@ -87,12 +88,11 @@ Keep Flutter `Row`, `Column`, `Expanded`, `LayoutBuilder` and native form widget
 CSS flex and Flutter constraints differ. Read the upstream [adaptations](https://github.com/btwld/mix/blob/main/packages/mix_winds/FLUTTER_ADAPTATIONS.md)
 and [API](https://pub.dev/packages/mix_winds) before adding utilities. No Node, CSS compiler or generator
 is needed. Keep form semantics, hit targets, keyboard behavior and both themes in widget tests.
-{% else %}
+{% else -%}
 Shared panels use standard `Container`, `BoxDecoration`, `EdgeInsets` and Flutter theme tokens.
 There is no styling dependency. Add visual primitives here instead of duplicating decorations across
 feature screens.
 {% endif %}
-
 ## Configuration and data
 
 `.env` is the source of truth for the display name, application ID and preview port. `tool/config.dart`

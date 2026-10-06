@@ -118,7 +118,7 @@ variants = [
 [preview]
 command = "dev"
 url = "http://127.0.0.1:${WEB_PORT}"
-message = "Open the link, add and delete a note, refresh to check persistence, then change Appearance in Settings. This browser preview shares the mobile app's Dart code. Stop the preview when finished."
+message = "The first compile can take a few minutes; if the page stays blank, reload it after the log says the app is being served. Add and delete a note, refresh to check persistence, then change Appearance in Settings. This browser preview shares the mobile app's Dart code. Stop the preview when finished."
 
 [translations.ru]
 "Flutter App" = "Flutter-приложение"
@@ -144,7 +144,7 @@ message = "Open the link, add and delete a note, refresh to check persistence, t
 "Build a local release APK. Requires the Android SDK and JDK; configure release signing before store distribution." = "Сборка локального APK в режиме release. Нужны Android SDK и JDK; перед публикацией в магазине настройте подпись релиза."
 "iOS build (unsigned)" = "Сборка iOS без подписи"
 "Build an unsigned iOS release. Requires full Xcode and its iOS platform tools." = "Сборка iOS-релиза без подписи. Нужны полный Xcode и инструменты платформы iOS."
-"Open the link, add and delete a note, refresh to check persistence, then change Appearance in Settings. This browser preview shares the mobile app's Dart code. Stop the preview when finished." = "Откройте ссылку, добавьте и удалите заметку, обновите страницу для проверки сохранения, затем измените тему в Settings. Браузерный предпросмотр использует тот же Dart-код, что и мобильное приложение. Завершив проверку, остановите предпросмотр."
+"The first compile can take a few minutes; if the page stays blank, reload it after the log says the app is being served. Add and delete a note, refresh to check persistence, then change Appearance in Settings. This browser preview shares the mobile app's Dart code. Stop the preview when finished." = "Первая компиляция может занять несколько минут; если страница осталась пустой, обновите её, когда в журнале появится сообщение «is being served». Добавьте и удалите заметку, обновите страницу для проверки сохранения, затем измените тему в Settings. Браузерный предпросмотр использует тот же Dart-код, что и мобильное приложение. Завершив проверку, остановите предпросмотр."
 
 "Design" = "Дизайн"
 "The visual design. Both options share the same app, routing and state." = "Визуальное оформление. Оба варианта используют общее приложение, маршруты и состояние."

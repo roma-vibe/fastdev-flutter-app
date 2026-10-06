@@ -14,6 +14,15 @@ coverage/
 .flutter-plugins
 .flutter-plugins-dependencies
 .fvm/
+.swiftpm/
+.build/
+.widget_preview/
+migrate_working_dir/
+**/ios/Flutter/.last_build_id
+app.*.symbols
+app.*.map.json
+/android/app/debug
+/android/app/profile
+/android/app/release
 android/app/app-config.properties
 android/app/src/main/res/values/app_name.xml
-ios/Flutter/AppConfig.xcconfig
